@@ -1,0 +1,80 @@
+<div class="todo-wrapper">
+  <div class="todo-container">
+    <h1 class="todo-title">✅ Angular To-Do</h1>
+
+    <!-- Input -->
+    <div class="todo-input-row">
+      @if (todos().length > 0) {
+        <button
+          class="toggle-all"
+          [class.active]="allCompleted()"
+          (click)="toggleAll()"
+          title="Toggle all">❯</button>
+      }
+      <input
+        class="todo-input"
+        type="text"
+        placeholder="What needs to be done?"
+        [value]="newTodoText()"
+        (input)="newTodoText.set($any($event.target).value)"
+        (keydown)="handleKeydown($event)"
+      />
+      <button class="add-btn" (click)="addTodo()">Add</button>
+    </div>
+
+    <!-- Filter tabs -->
+    @if (todos().length > 0) {
+      <div class="filter-tabs">
+        <button [class.active]="filter() === 'all'" (click)="setFilter('all')">All</button>
+        <button [class.active]="filter() === 'active'" (click)="setFilter('active')">Active</button>
+        <button [class.active]="filter() === 'completed'" (click)="setFilter('completed')">Completed</button>
+      </div>
+    }
+
+    <!-- Todo list -->
+    <ul class="todo-list">
+      @for (todo of filteredTodos(); track todo.id) {
+        <li class="todo-item" [class.completed]="todo.completed" [class.editing]="editingId() === todo.id">
+          @if (editingId() === todo.id) {
+            <input
+              class="edit-input"
+              type="text"
+              [value]="editingText()"
+              (input)="editingText.set($any($event.target).value)"
+              (keydown)="handleEditKeydown($event, todo.id)"
+              (blur)="confirmEdit(todo.id)"
+              #editInput
+            />
+          } @else {
+            <div class="todo-content">
+              <input
+                type="checkbox"
+                class="todo-check"
+                [checked]="todo.completed"
+                (change)="toggleTodo(todo.id)"
+              />
+              <span class="todo-text" (dblclick)="startEdit(todo)">{{ todo.text }}</span>
+              <button class="delete-btn" (click)="deleteTodo(todo.id)" title="Delete">✕</button>
+            </div>
+          }
+        </li>
+      }
+      @if (filteredTodos().length === 0 && todos().length > 0) {
+        <li class="empty-filter">No {{ filter() }} tasks.</li>
+      }
+      @if (todos().length === 0) {
+        <li class="empty-state">🎉 Nothing to do! Add a task above.</li>
+      }
+    </ul>
+
+    <!-- Footer -->
+    @if (todos().length > 0) {
+      <div class="todo-footer">
+        <span class="count">{{ activeCount() }} item{{ activeCount() !== 1 ? 's' : '' }} left</span>
+        @if (completedCount() > 0) {
+          <button class="clear-btn" (click)="clearCompleted()">Clear completed</button>
+        }
+      </div>
+    }
+  </div>
+</div>
